@@ -22,6 +22,7 @@ import { useProfileStore } from "../../store/profile-store";
 import { useMinecraftAuthStore } from "../../store/minecraft-auth-store";
 import { useCrafatarAvatar } from "../../hooks/useCrafatarAvatar";
 import { parseMotdToHtml } from "../../utils/motd-utils";
+import { usePinnedProfilesStore } from "../../store/pinned-profiles-store";
 
 // Custom JSX component for tooltip content
 function StandardVersionTooltipContent() {
@@ -77,6 +78,14 @@ export function ProfileCardV2({
   const contextMenuId = `profile-${profile.id}`;
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const { pinnedProfileIds, pinProfile, unpinProfile } = usePinnedProfilesStore(
+    (state) => ({
+      pinnedProfileIds: state.pinnedProfileIds,
+      pinProfile: state.pinProfile,
+      unpinProfile: state.unpinProfile,
+    }),
+  );
+  const isProfilePinned = pinnedProfileIds.includes(profile.id);
 
   // Modpack versions state for conditional rendering
   const [modpackVersions, setModpackVersions] = useState(null);
@@ -126,6 +135,20 @@ export function ProfileCardV2({
       onClick: (profile) => {
         console.log("Duplicate Profile clicked for:", profile.name);
         openDuplicateModal(profile);
+      },
+    },
+    {
+      id: "pin",
+      label: isProfilePinned ? "Unpin Profile" : "Pin Profile",
+      icon: isProfilePinned ? "solar:pin-remove-bold" : "solar:pin-bold",
+      onClick: (profile) => {
+        if (isProfilePinned) {
+          unpinProfile(profile.id);
+          toast.success(`Unpinned '${profile.name}'`);
+        } else {
+          pinProfile(profile.id);
+          toast.success(`Pinned '${profile.name}'`);
+        }
       },
     },
     {
@@ -611,6 +634,13 @@ export function ProfileCardV2({
               >
                 <span dangerouslySetInnerHTML={{ __html: parseMotdToHtml(profile.name) }} />
               </h3>
+              {isProfilePinned && (
+                <Icon
+                  icon="solar:pin-bold"
+                  className="w-4 h-4 text-white/80"
+                  aria-label="Pinned profile"
+                />
+              )}
               
               {/* Preferred Account Indicator next to title */}
               {preferredAccount && (
@@ -788,6 +818,13 @@ export function ProfileCardV2({
           >
             <span dangerouslySetInnerHTML={{ __html: parseMotdToHtml(profile.name) }} />
           </h3>
+          {isProfilePinned && (
+            <Icon
+              icon="solar:pin-bold"
+              className="w-4 h-4 text-white/80"
+              aria-label="Pinned profile"
+            />
+          )}
           
           {/* Preferred Account Indicator next to title */}
           {preferredAccount && (

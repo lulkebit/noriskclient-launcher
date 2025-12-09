@@ -17,6 +17,7 @@ import { ProfileIcon } from "./ProfileIcon";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { cn } from "../../lib/utils";
 import { useLaunchStateStore } from "../../store/launch-state-store";
+import { usePinnedProfilesStore } from "../../store/pinned-profiles-store";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -60,6 +61,9 @@ export function ProfileCard({
 
   const { getProfileState, initializeProfile } = useLaunchStateStore();
   const { isButtonLaunching, buttonStatusMessage } = getProfileState(profile.id);
+  const isPinned = usePinnedProfilesStore((state) =>
+    state.pinnedProfileIds.includes(profile.id),
+  );
 
   useEffect(() => {
     initializeProfile(profile.id);
@@ -321,6 +325,15 @@ export function ProfileCard({
           variant="flat"
           withAnimation={false}
         >
+          {isPinned && (
+            <div className="absolute top-3 right-3 z-20 flex items-center justify-center w-7 h-7 rounded-full bg-black/60 border border-white/20 backdrop-blur">
+              <Icon
+                icon="solar:pin-bold"
+                className="w-4 h-4 text-white"
+                aria-hidden="true"
+              />
+            </div>
+          )}
           {/* Background image overlay */}
           {resolvedBackgroundImageUrl && !isBgLoading && (
             <div

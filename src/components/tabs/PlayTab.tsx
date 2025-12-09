@@ -7,6 +7,7 @@ import { useMinecraftAuthStore } from "../../store/minecraft-auth-store";
 import { useProfileStore } from "../../store/profile-store";
 import { useThemeStore } from "../../store/useThemeStore";
 import { PlayerActionsDisplay } from "../launcher/PlayerActionsDisplay";
+import { PinnedProfilesQuickAccess } from "../launcher/PinnedProfilesQuickAccess";
 import { RetroGridEffect } from "../effects/RetroGridEffect";
 import {
   BACKGROUND_EFFECTS,
@@ -50,7 +51,7 @@ export function PlayTab() {
 
   return (
     <div className="flex h-full relative">
-      <div className="flex-grow flex flex-col items-center justify-center p-8 relative z-15">
+      <div className="flex-grow flex flex-col items-center justify-center p-8 gap-6 relative z-15">
         {currentEffect === BACKGROUND_EFFECTS.RETRO_GRID && (
           <RetroGridEffect
             renderMode="both"
@@ -59,12 +60,9 @@ export function PlayTab() {
           />
         )}
 
-        {/* <VersionInfo
-          profileId={currentDisplayProfile?.id || ""}
-          className="absolute top-6 left-6 z-10"
-        /> */}
+        <PinnedProfilesQuickAccess className="w-full" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 w-full flex flex-col items-center">
           {profilesError && !loading && (
             <ErrorMessage
               message={profilesError || "An unknown error occurred"}

@@ -10,8 +10,10 @@ import {
 import { Icon } from "@iconify/react";
 import type { Profile } from "../../types/profile";
 import { useThemeStore } from "../../store/useThemeStore";
+import { usePinnedProfilesStore } from "../../store/pinned-profiles-store";
 import { createPortal } from "react-dom";
 import { useConfirmDialog } from "../../hooks/useConfirmDialog";
+import { toast } from "react-hot-toast";
 import { gsap } from "gsap";
 
 interface ProfileContextMenuProps {
@@ -83,10 +85,17 @@ export const ProfileContextMenu = forwardRef<
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   const accentColor = useThemeStore((state) => state.accentColor);
+  const { pinnedProfileIds, toggleProfilePin } = usePinnedProfilesStore(
+    (state) => ({
+      pinnedProfileIds: state.pinnedProfileIds,
+      toggleProfilePin: state.toggleProfilePin,
+    }),
+  );
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
   const [adjustedPosition, setAdjustedPosition] = useState({ x, y });
   const { confirm, confirmDialog } = useConfirmDialog();
   const menuRef = useRef<HTMLDivElement>(null);
+  const isPinned = pinnedProfileIds.includes(profile.id);
 
   useEffect(() => {
     setPortalNode(document.body);
@@ -205,6 +214,26 @@ export const ProfileContextMenu = forwardRef<
           <Icon icon="solar:settings-bold" className="w-5 h-5 text-white" />
           <span className="font-minecraft-ten text-base text-white/80">
             {profile.is_standard_version ? "Settings" : "Settings"}
+          </span>
+        </li>
+        <li
+          className="px-4 py-2.5 flex items-center gap-3 hover:bg-white/10 cursor-pointer transition-colors duration-150"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAction(() => {
+              toggleProfilePin(profile.id);
+              toast.success(
+                `${isPinned ? "Unpinned" : "Pinned"} '${profile.name}'`,
+              );
+            });
+          }}
+        >
+          <Icon
+            icon={isPinned ? "solar:pin-remove-bold" : "solar:pin-bold"}
+            className="w-5 h-5 text-white"
+          />
+          <span className="font-minecraft-ten text-base text-white/80">
+            {isPinned ? "Unpin Profile" : "Pin Profile"}
           </span>
         </li>
         <li className="px-4 py-1">
